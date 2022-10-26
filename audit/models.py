@@ -2,7 +2,7 @@ from contextlib import closing
 import uuid
 from django.db import models
 
-from user.models import Customer
+from user.models import Customer, Organization
 
 class EntryTypeEnum(models.TextChoices):
     SALES_INVOICE = "SI", "Sales Invoice" # Debit
@@ -52,6 +52,9 @@ class Ledger(models.Model):
 
     related_user = models.ForeignKey(
         Customer, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    organization = models.ForeignKey(
+        Organization, on_delete=models.SET_NULL, related_name="ledgers", null=True, blank=True
     )
 
     entries = models.ManyToManyField(

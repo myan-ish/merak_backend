@@ -6,3 +6,5 @@ djangorestframework-simplejwt
 drf-writable-nested
 pillow
 django-safedelete
+cryptography
+gunicorn

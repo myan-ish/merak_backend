@@ -2,13 +2,15 @@ from django.urls import path, include
 from rest_framework import routers
 from audit.apis import get_current_balance
 
-from audit.views import AuditView, ExpenseCategoryViewSet, ExpenseViewSet, Transaction
+from audit.views import AuditView, LedgerViewSet,Transaction
 
 
 router = routers.DefaultRouter()
 
-router.register("expense", ExpenseViewSet)
-router.register("expense_category", ExpenseCategoryViewSet)
+# router.register("expense", ExpenseViewSet)
+# router.register("expense_category", ExpenseCategoryViewSet)
+router.register("ledger", LedgerViewSet)
+
 
 api_patterns = [
     path("get_current_balance/", get_current_balance.as_view()),
