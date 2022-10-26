@@ -161,7 +161,7 @@ REST_FRAMEWORK = {
 
 #------------------------------Spectacular settings---------------------------------------------#
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'TriqBriq API',
+    'TITLE': 'Merak API',
     'DESCRIPTION': 'Your project description',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
