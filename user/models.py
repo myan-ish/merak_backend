@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
@@ -71,3 +72,25 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
+
+class Organization(SafeDeleteModel):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    owner = models.ForeignKey(
+        "user.User", on_delete=models.CASCADE, related_name="organizations"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    uuid = models.CharField(max_length=6, unique=True, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, keep_deleted=False, **kwargs):
+        if not self.uuid:
+            self.uuid = str(uuid.uuid4())[:6]
+            while (
+                Organization.objects.filter(uuid=self.uuid).exists()
+            ):
+                self.uuid = str(uuid.uuid4())[:6]
+        return super().save(keep_deleted, **kwargs)
