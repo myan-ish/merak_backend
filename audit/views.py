@@ -1,5 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
-from audit.models import Ledger
+from audit.models import EntryItem, Ledger
 from rest_framework.views import APIView
 from audit.serializer import LedgerSerializer
 from django.views.generic.base import View
@@ -48,7 +48,13 @@ class Transaction(APIView):
         related_user_id = data.get("related_user_id")
         related_user = get_object_or_404(Customer, id=related_user_id)
         ledger = get_object_or_404(Ledger, related_user=related_user)
-        is_credit = ledger.is_credit(data.get("type"))  
-        ledger.make_transaction(data["amount"], is_credit, data["type"])
+        is_credit = ledger.is_credit(data.get("type"))
+        items = [EntryItem.objects.create(
+                product=item.get("product"),
+                quantity=item.get("quantity"),
+                price=item.get("price"),
+            ).id for item in data.get("items")]
+            
+        ledger.make_transaction(data["amount"], items,is_credit, data.get("type"), data.get('vatable_discount'), data.get('non_vatable_discount'))
         return Response({"message": "Transaction made successfully"})
         
