@@ -4,6 +4,17 @@ from django.db import models
 
 from user.models import Customer, Organization
 
+class EntryItem(models.Model):
+    product = models.ForeignKey(
+        'inventory.Product', on_delete=models.CASCADE, null=True, blank=True
+    )
+    quantity = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.product} - {self.quantity}"
+    
+
 class EntryTypeEnum(models.TextChoices):
     SALES_INVOICE = "SI", "Sales Invoice" # Debit
     SALES_RETURN = "SR", "Sales Return" # Credit
@@ -16,14 +27,43 @@ class EntryTypeEnum(models.TextChoices):
 class Entry(models.Model):
     # TODO: Add products and list of products
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(auto_now=True)
     is_credit = models.BooleanField(default=False)
     closing_balance = models.DecimalField(max_digits=15, decimal_places=2) 
     type = models.CharField(max_length=2, choices=EntryTypeEnum.choices)
+
+    vatable_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    non_vatable_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
+    vatable_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    non_vatable_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sub_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    items = models.ManyToManyField(EntryItem, blank=True)
+
     class Meta:
         ordering = ["-date"]
+    
+    def __str__(self) -> str:
+        return f"{self.type} - {self.date} - {self.total}"
+
+    def get_vatable_amount(self):
+        vatable_amount = 0
+        for item in self.items.all():
+            if item.product.vatable:
+                vatable_amount += item.price * item.quantity
+        return vatable_amount
+
+    def get_non_vatable_amount(self):
+        non_vatable_amount = 0
+        for item in self.items.all():
+            if not item.product.vatable:
+                non_vatable_amount += item.price * item.quantity
+        return non_vatable_amount
+    
+    @property
+    def total(self):
+        return self.sub_total - self.vatable_discount - self.non_vatable_discount
 
 class LedgerTypeEnum(models.TextChoices):
     CAPITAL = "CAPITAL", "Capital" #Credit
@@ -72,17 +112,22 @@ class Ledger(models.Model):
             return False
         return True
     
-    def make_transaction(self, amount, is_credit, type):
+    def make_transaction(self, amount, items, is_credit, type, vatable_discount,non_vatable_discount):
+        # TODO: Need to test this logic and function asap
+         
         self.closing_balance = self.closing_balance + amount if not is_credit else self.closing_balance - amount
         self.save()
         entry = Entry.objects.create(
-            amount=amount,
             is_credit=is_credit,
             closing_balance=self.closing_balance,
             type=type,
-            organization=self.organization
+            items = items
+            non_vatable_discount=non_vatable_discount,
+            vatable_discount=vatable_discount,
         )
         self.entries.add(entry)
+        entry.vatable_amount = entry.get_vatable_amount()
+        entry.non_vatable_amount = entry.get_non_vatable_amount()
         self.save()
     
     
