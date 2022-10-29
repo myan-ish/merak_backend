@@ -10,6 +10,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
     uuid = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    
+    vatable = models.BooleanField(default=True)
 
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, null=True, blank=True
