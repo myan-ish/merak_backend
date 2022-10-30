@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django import forms
 
-from .models import User
+from .models import Customer, Organization, User
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 class CustomUserAdmin(UserAdmin):
@@ -58,3 +58,5 @@ admin.site.unregister(Group)
 admin.site.register(Group, GroupAdmin)
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(Customer)
+admin.site.register(Organization)
