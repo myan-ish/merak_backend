@@ -11,11 +11,13 @@ from user.managers import CustomAccountManager
 def get_upload_path_for_avatar(instance, filename):
     return f"avatars/users/{instance.id}/{filename}"
 
+
 class GenderChoices(models.TextChoices):
     MALE = "MALE", _("Male")
     FEMALE = "FEMALE", _("Female")
     OTHER = "OTHER", _("Other")
     UNKNOWN = "UNKNOWN", _("Unknown")
+
 
 class User(AbstractBaseUser, SafeDeleteModel, PermissionsMixin):
     email = models.EmailField(_("Email Address"), unique=True)
@@ -24,9 +26,7 @@ class User(AbstractBaseUser, SafeDeleteModel, PermissionsMixin):
     avatar = models.ImageField(
         upload_to=get_upload_path_for_avatar, null=True, blank=True
     )
-    gender = models.CharField(
-        max_length=7, choices=GenderChoices.choices, null=True
-    )
+    gender = models.CharField(max_length=7, choices=GenderChoices.choices, null=True)
     birth_date = models.DateField(null=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
     address = models.JSONField(null=True, blank=True)
@@ -34,6 +34,13 @@ class User(AbstractBaseUser, SafeDeleteModel, PermissionsMixin):
 
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+
+    organization = models.ForeignKey(
+        "user.Organization",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
 
     class UserStatusChoice(models.TextChoices):
         PENDING = _("Pending")
@@ -63,6 +70,7 @@ class User(AbstractBaseUser, SafeDeleteModel, PermissionsMixin):
         self.status = User.UserStatusChoice.ACTIVE
         super().undelete(*args, **kwargs)
 
+
 class Customer(models.Model):
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, null=True, blank=True)
@@ -72,6 +80,7 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Organization(SafeDeleteModel):
     name = models.CharField(max_length=100)
@@ -89,8 +98,6 @@ class Organization(SafeDeleteModel):
     def save(self, keep_deleted=False, **kwargs):
         if not self.uuid:
             self.uuid = str(uuid.uuid4())[:6]
-            while (
-                Organization.objects.filter(uuid=self.uuid).exists()
-            ):
+            while Organization.objects.filter(uuid=self.uuid).exists():
                 self.uuid = str(uuid.uuid4())[:6]
         return super().save(keep_deleted, **kwargs)

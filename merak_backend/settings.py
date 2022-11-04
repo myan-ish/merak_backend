@@ -175,7 +175,11 @@ SPECTACULAR_SETTINGS = {
 
 # ---------------------------------Simple JWT Settings-----------------------------------------#
 SIMPLE_JWT = {
+<<<<<<< Updated upstream
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=200000),
+=======
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60000000),
+>>>>>>> Stashed changes
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "SOCIAL_TOKEN_DELTA": timedelta(days=1),
     "ALLOW_REFRESH_SOCIAL": False,

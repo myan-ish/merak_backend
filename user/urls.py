@@ -14,17 +14,43 @@ router.register("", views.UserViewSet)
 
 auth_urlpatterns = [
     path("login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path(
-        "refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"
-    ),
+    path("refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
     path("register/", apis.RegistrationView.as_view(), name="registration"),
 ]
 
-urlpatterns = [
+api_urlpatterns = [
     path("auth/", include(auth_urlpatterns)),
+    path(
+        "register_organization/",
+        apis.OrganizationRegistrationView.as_view(),
+        name="organization_registration",
+    ),
+    path("set_organization/", apis.set_user_organization, name="set_organization"),
+]
+
+urlpatterns = [
+    path("", include(api_urlpatterns)),
     path("", include(router.urls)),
-    path("password_reset", apis.PasswordResetRequestView.as_view(), name="password_reset"),
-    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', apis.password_reset_confirm, name='password_reset_confirm'),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),    
+    path(
+        "password_reset", apis.PasswordResetRequestView.as_view(), name="password_reset"
+    ),
+    path(
+        "password_reset/done/",
+        auth_views.PasswordResetDoneView.as_view(
+            template_name="password_reset_done.html"
+        ),
+        name="password_reset_done",
+    ),
+    path(
+        "reset/<uidb64>/<token>/",
+        apis.password_reset_confirm,
+        name="password_reset_confirm",
+    ),
+    path(
+        "reset/done/",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="password_reset_complete.html"
+        ),
+        name="password_reset_complete",
+    ),
 ]
