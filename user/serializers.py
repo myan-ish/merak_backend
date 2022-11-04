@@ -6,10 +6,13 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from user.models import Organization
+
 from .validators import validate_password
 from .services.auth_handlers import create_verification_link
 
 User = get_user_model()
+
 
 class UserSerializer(serializers.ModelSerializer):
     display_name = serializers.SerializerMethodField()
@@ -17,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_display_name(obj):
         return f"{obj.first_name} {obj.last_name}"
-    
+
     class Meta:
         model = User
         fields = (
@@ -36,6 +39,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_admin",
             "is_staff",
         )
+
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only=True)
@@ -58,9 +62,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         try:
             password_validation.validate_password(password=new_password)
         except password_validation.ValidationError as e:
-            raise serializers.ValidationError(
-                {"new_password": list(e.messages)}
-            )
+            raise serializers.ValidationError({"new_password": list(e.messages)})
 
         return data
 
@@ -69,20 +71,20 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.save(update_fields=("password",))
         return instance
 
+
 class AuthSerializer(serializers.Serializer):
     access_token = serializers.CharField(
         max_length=4096, required=True, trim_whitespace=True
     )
 
+
 class RegistrationSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(max_length = 64)
+    first_name = serializers.CharField(max_length=64)
     last_name = serializers.CharField(max_length=64)
     email = serializers.EmailField(
-        validators = [UniqueValidator(queryset=User.objects.all())]
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
-    password = serializers.CharField(
-        write_only=True, validators=[validate_password]
-    )
+    password = serializers.CharField(write_only=True, validators=[validate_password])
 
     class Meta:
         model = User
@@ -103,15 +105,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class ResendVerificationEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate(self, data: dict) -> dict:
         email = data["email"]
         try:
-            user = User.objects.get(
-                email=email, status=User.UserStatusChoice.PENDING
-            )
+            user = User.objects.get(email=email, status=User.UserStatusChoice.PENDING)
         except User.DoesNotExist:
             raise serializers.ValidationError(
                 {"error": _("Email is not valid or user is not pending")}
@@ -121,5 +122,30 @@ class ResendVerificationEmailSerializer(serializers.Serializer):
         # TODO: EMAIL VERIFICATION JOB SCEDULE
         return data
 
+
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
+
+
+class OrganizationRegistrationSerializer(serializers.ModelSerializer):
+    owner = serializers.IntegerField(write_only=True)
+    uuid = serializers.UUIDField(read_only=True)
+
+    class Meta:
+        model = Organization
+        fields = (
+            "name",
+            "description",
+            "owner",
+            "uuid",
+        )
+
+    def create(self, validated_data: dict) -> dict:
+        validated_data["owner"] = User.objects.get(id=validated_data["owner"])
+        organization = Organization.objects.create(
+            name=validated_data["name"],
+            description=validated_data["description"],
+            owner=validated_data["owner"],
+        )
+        print(organization.id, organization.uuid)
+        return organization
