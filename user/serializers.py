@@ -9,7 +9,7 @@ from rest_framework.validators import UniqueValidator
 from user.models import Organization
 
 from .validators import validate_password
-from .services.auth_handlers import create_verification_link
+from .services.auth_handlers import create_verification_link, send_verification_email
 
 User = get_user_model()
 
@@ -103,6 +103,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             password=validated_data["password"],
             status=User.UserStatusChoice.PENDING,
         )
+        send_verification_email(user)
         return user
 
 
@@ -119,6 +120,7 @@ class ResendVerificationEmailSerializer(serializers.Serializer):
             )
 
         verification_url, token = create_verification_link(user)
+        print(verification_url, token)
         # TODO: EMAIL VERIFICATION JOB SCEDULE
         return data
 
