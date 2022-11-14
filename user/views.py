@@ -1,15 +1,16 @@
 import json
+
 from django.contrib.auth import get_user_model
-
 from rest_framework import viewsets
-from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from .serializers import UserSerializer, ChangePasswordSerializer
 from .filters import UserFilter
-
+from .serializers import ChangePasswordSerializer, UserSerializer
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
+
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -59,3 +60,16 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response()
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        if not user.is_superuser:
+            return Response(
+                {"detail": "You do not have permission to perform this action."}
+            )
+        return super().retrieve(request, *args, **kwargs)
