@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from audit.filters import LedgerFilter
 from audit.models import EntryItem, Ledger
 from rest_framework.views import APIView
 from audit.serializer import LedgerSerializer
@@ -38,6 +39,7 @@ class AuditView(View):
 class LedgerViewSet(ModelViewSet):
     serializer_class = LedgerSerializer
     queryset = Ledger.objects.all()
+    filter_class = LedgerFilter
 
     def get_queryset(self):
         return self.queryset.filter(organization=self.request.user.organization)
