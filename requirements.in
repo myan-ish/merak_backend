@@ -9,3 +9,4 @@ django-safedelete
 cryptography
 gunicorn
 django-cors-headers
+pytest

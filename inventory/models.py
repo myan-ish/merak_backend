@@ -29,7 +29,13 @@ class Product(models.Model):
             return self.uuid
 
     def add_stock(self, price, quantity):
-        # since the price of stock might fluctuate, we need to update the price of the product according to the added stock against existing stock
+        """
+        The price in which the previous stock was bought at might be different from the current price. Here we are updating the price to the current price at which if the stock is sold, the profit will be made.
+        It will also update the quantity of the stock.
+
+        @param price: The price at which the stock is bought at.
+        @param quantity: The quantity of the stock.
+        """
         if self.quantity > 0:
             self.price = (self.price * self.quantity + price * quantity) / (
                 self.quantity + quantity

@@ -8,12 +8,14 @@ from inventory.models import Product
 
 from user.models import Customer
 
+
 class get_current_balance(APIView):
-    '''
+    """
     Returns the current audit balance
-    '''
+    """
+
     def get(self, request):
-        current_balance = Ledger.objects.aggregate(Sum('closing_balance'))
+        current_balance = Ledger.objects.aggregate(Sum("closing_balance"))
         return Response({"current_balance": current_balance})
 
 
@@ -29,10 +31,10 @@ class Transaction(APIView):
         customer = data.get("customer")
         customer = get_object_or_404(Customer, pk=customer)
         ledger = get_object_or_404(Ledger, customer=customer)
-        is_credit = ledger.is_credit(data.get("type"))
+        # is_credit = ledger.is_credit(data.get("type"))
         items = [
             EntryItem.objects.create(
-                product=get_object_or_404(Product,pk=item.get("product")),
+                product=get_object_or_404(Product, pk=item.get("product")),
                 quantity=item.get("quantity"),
                 price=item.get("price"),
             )
@@ -41,9 +43,15 @@ class Transaction(APIView):
 
         ledger.make_transaction(
             items,
-            is_credit,
+            # is_credit,
             data.get("type"),
             data.get("vatable_discount"),
             data.get("non_vatable_discount"),
         )
-        return Response({"message": "Transaction made successfully"})
+        return Response(
+            {
+                "message": "Transaction made successfully",
+                "ledger": ledger.id,
+                "closing_balance": ledger.closing_balance,
+            },
+        )
