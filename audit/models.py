@@ -102,6 +102,7 @@ class Ledger(models.Model):
     type = models.CharField(
         max_length=255, choices=LedgerTypeEnum.choices, default=LedgerTypeEnum.CUSTOMER
     )
+    date = models.DateField(auto_now=True)
 
     opening_balance = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     closing_balance = models.DecimalField(max_digits=15, decimal_places=2, default=0)

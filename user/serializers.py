@@ -16,11 +16,24 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     display_name = serializers.SerializerMethodField()
+    organization = serializers.SerializerMethodField()
 
     @staticmethod
     def get_display_name(obj):
         return f"{obj.first_name} {obj.last_name}"
+<<<<<<< Updated upstream
 
+=======
+<<<<<<< Updated upstream
+    
+=======
+
+    @staticmethod
+    def get_organization(obj):
+        return obj.organization.name if obj.organization else None
+
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     class Meta:
         model = User
         fields = (
@@ -38,6 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_superuser",
             "is_admin",
             "is_staff",
+            "organization",
         )
 
 
@@ -127,6 +141,11 @@ class ResendVerificationEmailSerializer(serializers.Serializer):
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 
 
 class OrganizationRegistrationSerializer(serializers.ModelSerializer):
@@ -149,5 +168,10 @@ class OrganizationRegistrationSerializer(serializers.ModelSerializer):
             description=validated_data["description"],
             owner=validated_data["owner"],
         )
+<<<<<<< Updated upstream
         print(organization.id, organization.uuid)
         return organization
+=======
+        return organization
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
