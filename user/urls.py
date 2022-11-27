@@ -53,4 +53,9 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
+    path(
+        "activate/<str:token>/",
+        apis.ActivateAccountView.as_view(),
+        name="activate_account",
+    ),
 ]

@@ -32,10 +32,8 @@ def decrypt_string(encrypted: Union[str, bytes], key: bytes) -> Optional[dict]:
 def create_verification_link(user: User) -> Tuple[str, str]:
     data = {"uid": user.pk}
     key = encrypt_data(data, settings.INVITES_KEY)
-    verification_url = (
-        f"{settings.FRONTEND_BASE_URL}verification-success?actionType=registration"
-    )
-    logger.info(f"Verification URL => {verification_url}&token={key}")
+    verification_url = f"{settings.FRONTEND_BASE_URL}auth/activate/"
+    logger.info(f"Verification URL => {verification_url}{key}")
     return verification_url, key
 
 
@@ -53,192 +51,218 @@ def send_verification_email(self):
         "Hello, "
         + " Please click on this link to activate your account: "
         + verification_url
-        + "&token="
         + key
     )
     html_content = (
-        '''
-    <!DOCTYPE html>
-<html lang="en">
+        """
+        <!DOCTYPE html>
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Started</title>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <style type="text/css">
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #EEEEEE;
+        @media screen {
+            @font-face {
+                font-family: 'Lato';
+                font-style: normal;
+                font-weight: 400;
+                src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
+            }
+
+            @font-face {
+                font-family: 'Lato';
+                font-style: normal;
+                font-weight: 700;
+                src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v11/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
+            }
+
+            @font-face {
+                font-family: 'Lato';
+                font-style: italic;
+                font-weight: 400;
+                src: local('Lato Italic'), local('Lato-Italic'), url(https://fonts.gstatic.com/s/lato/v11/RYyZNoeFgb0l7W3Vu1aSWOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+            }
+
+            @font-face {
+                font-family: 'Lato';
+                font-style: italic;
+                font-weight: 700;
+                src: local('Lato Bold Italic'), local('Lato-BoldItalic'), url(https://fonts.gstatic.com/s/lato/v11/HkF_qI1x_noxlxhrhMQYELO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
+            }
         }
-        table{
-            border-spacing: 0;
+
+        /* CLIENT-SPECIFIC STYLES */
+        body,
+        table,
+        td,
+        a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
         }
-        td{
-            padding: 0;
+
+        table,
+        td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
         }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+
+        /* RESET STYLES */
         img {
             border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
         }
-        .wrapper {
-            background-color: #EEEEEE;
-            width: 100%;
-            table-layout: fixed;
+
+        table {
+            border-collapse: collapse !important;
         }
-        .webkit {
-            max-width: 600px;
-            padding-bottom: 1rem;
-            background-color: #FFFFFF;
+
+        body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
         }
-        .outer {
-            Margin: 0 auto;
-            width: 100%;
-            max-width: 600px;
-            border-spacing: 0;
-            font-family: 'Quicksand';
-            color: #333333;
+
+        /* iOS BLUE LINKS */
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
         }
-        .columns{
-            text-align: center;
-            font-size: 0;
-            line-height: 0;
-            padding: 1.5rem 0;
+
+        /* MOBILE STYLES */
+        @media screen and (max-width:600px) {
+            h1 {
+                font-size: 32px !important;
+                line-height: 32px !important;
+            }
         }
-        .columns .column{
-            width: 100%;
-            max-width: 200px;
-            display: inline-block;
-            vertical-align: top;
-        }
-        .padding {
-            padding: 0.75rem 1rem;
-        }
-        .columns .column .content{
-            font-size: 1rem;
-            line-height: 0.75rem;
-        }
-        @media screen and (max-width: 400px) {
-            .services{
-               width: 200px !important;
-               height: 150px !important;
-           }  
-           .padding{
-               padding-right: 0 !important;
-               padding-left: 0 !important;
-           }           
+
+        /* ANDROID CENTER FIX */
+        div[style*="margin: 16px 0;"] {
+            margin: 0 !important;
         }
     </style>
 </head>
-<body>
-    <center class="wrapper">
-        <div class="webkit">
-            <table class="outer" style="margin: 0 auto">
-                <!-- Header -->
-                <tr>
-                    <td>
-                        <table width="100%" style="border-spacing: 0;">
-                            <tr>
-                                <td style="background-color: #FFFFFF; box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px; text-align: center;">
-                                    <a href=""><img src="https://github.com/Nimesh-bot/HandleMyPaper/blob/main/HMP_logo.png?raw=true" alt="Logo" title="Logo" style="height: 5rem; width: 12rem; object-fit: contain;"></a>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <!-- Body -->
-                <tr>
-                    <td>
-                        <a href="#"><img src="https://images.unsplash.com/photo-1604153138516-28db213cf26b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1115&q=80" alt="banner" style="height: 200px; width: 100%; object-fit: cover;"></a>
-                        <div style="text-align: center; padding: 0 3rem;">
-                            <h3>Thank you for registering</h3>
-                            <p style="font-size: 0.75rem; margin-top: -0.5rem;">
-                                We are happy to extend our greetings to you and we wish to continue working with you.
-                                Visit our website and make yourself known as an expert for paid jobs by sending us an 
-                                application or
-                                submit your assignment to us and we will ensure to handle your assignment with care and
-                                satisfy you to the fullest.
-                            </p>
-                            <a href="'''
-        + verification_url
-        + "&token="
-        + key
-        + """"
-                            <button style="padding: 0.5rem; border: none; background-color: #ab47bc; border-radius: 4px; color: white;">Get Started</button>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Services -->
-                <tr>
-                    <td>
-                        <table width="100%" style="border-spacing: 0;">
-                            <tr>
-                                <td class="columns">
-                                    <!-- Expert -->
-                                    <table class="column">
-                                        <tr>
-                                            <td class="padding">
-                                                <table class="content">
-                                                    <tr>
-                                                        <td>
-                                                            <a href="#"><img class="services" src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1172&q=80" alt="" width= "150" style="max-width: 150px; border-radius: 4px; object-fit: cover;"></a>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <h5>Be an Expert</h3>
-                                                            <p style="font-size: 0.75rem;">Send us your C.V. to apply yourself as an expert and get tons of paid jobs that matches your specialization</p>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <!-- Help -->
-                                    <table class="column">
-                                        <tr>
-                                            <td class="padding">
-                                                <table class="content">
-                                                    <tr>
-                                                        <td>
-                                                            <a href="#"><img class="services" src="https://images.unsplash.com/photo-1509475826633-fed577a2c71b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80" 
-                                                            alt="" width= "150" style="max-width: 150px; border-radius: 4px; object-fit: cover;"></a>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <h5>Find an Expert</h3>
-                                                            <p style="font-size: 0.75rem;">
-                                                                If you are currently in need of an expert to handle your assignment, submit us your assignment and get your task handled by an expert with care.    
-                                                            </p>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <!-- Footer -->
-                <tr>
-                    <td>
-                        <table width="100%" style="border-spacing: 0;">
-                            <tr>
-                                <td style="background-color: #FFFFFF; box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px 10px; text-align: center;">
-                                    <h5 style="color: #ab47bc;">Contact: <span style="color: #333333; font-weight: 100;">98XXXXXXXX</span></h5>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </center>   
+
+<body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
+    <!-- HIDDEN PREHEADER TEXT -->
+    <div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Lato', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;"> We're thrilled to have you here! Get ready to dive into your new account.
+    </div>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <!-- LOGO -->
+        <tr>
+            <td bgcolor="#FFA73B" align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" valign="top" style="padding: 40px 10px 40px 10px;"> </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#FFA73B" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
+                            <h1 style="font-size: 48px; font-weight: 400; margin: 2;">Welcome!</h1> <img src=" https://img.icons8.com/clouds/100/000000/handshake.png" width="125" height="120" style="display: block; border: 0px;" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">We're excited to have you get started. First, you need to confirm your account. Just press the button below.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td bgcolor="#ffffff" align="left">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
+                                        <table border="0" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td align="center" style="border-radius: 3px;" bgcolor="#FFA73B"><a href="""
+        + f"{verification_url}{key}"
+        + """ target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #FFA73B; display: inline-block;">Confirm Account</a></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr> <!-- COPY -->
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 0px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">If that doesn't work, copy and paste the following link in your browser:</p>
+                        </td>
+                    </tr> <!-- COPY -->
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;"><a href="""
+        + f"{verification_url}{key}"
+        + """ target="_blank" style="color: #FFA73B;">"""
+        + f"{verification_url}{key}"
+        + """</a></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">If you have any questions, just reply to this email&mdash;we're always happy to help out.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <p style="margin: 0;">Cheers,<br>BBB Team</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#f4f4f4" align="center" style="padding: 30px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#FFECD1" align="center" style="padding: 30px 30px 30px 30px; border-radius: 4px 4px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
+                            <h2 style="font-size: 20px; font-weight: 400; color: #111111; margin: 0;">Need more help?</h2>
+                            <p style="margin: 0;"><a href="#" target="_blank" style="color: #FFA73B;">We&rsquo;re here to help you out</a></p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#f4f4f4" align="left" style="padding: 0px 30px 30px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 18px;"> <br>
+                            <p style="margin: 0;">If these emails get annoying, please feel free to <a href="#" target="_blank" style="color: #111111; font-weight: 700;">unsubscribe</a>.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
-</html>
-"""
+
+</html>"""
     )
 
     msg = EmailMultiAlternatives(
@@ -246,4 +270,3 @@ def send_verification_email(self):
     )
     msg.attach_alternative(html_content, "text/html")
     msg.send()
-    print("success")

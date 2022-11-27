@@ -20,6 +20,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from user.models import Organization
+from user.services.auth_handlers import decrypt_string
 
 from .serializers import (
     OrganizationRegistrationSerializer,
@@ -184,3 +185,26 @@ def set_user_organization(request):
             {"message": "Invalid request method."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class ActivateAccountView(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request, token):
+        try:
+            uid = decrypt_string(token, settings.INVITES_KEY).get("uid")
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None:
+            user.status = "Active"
+            user.save()
+            return Response(
+                {"message": "Account activated successfully."},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"message": "Invalid activation link."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
