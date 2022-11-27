@@ -23,19 +23,28 @@ from audit.models import Ledger
 #         model = ExpenseCategory
 #         fields = "__all__"
 
+
 class LedgerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ledger
         fields = "__all__"
+
 
 class TransactionEntryItemSerializer(serializers.Serializer):
     product = serializers.IntegerField()
     quantity = serializers.IntegerField()
     price = serializers.IntegerField()
 
+
+class ItemSerializer(serializers.Serializer):
+    product = serializers.IntegerField()
+    quantity = serializers.IntegerField()
+    price = serializers.IntegerField()
+
+
 class TransactionSerializer(serializers.Serializer):
     customer = serializers.IntegerField()
     type = serializers.CharField()
-    items = serializers.ListField()
+    items = ItemSerializer(many=True)
     vatable_discount = serializers.DecimalField(max_digits=10, decimal_places=2)
     non_vatable_discount = serializers.DecimalField(max_digits=10, decimal_places=2)
