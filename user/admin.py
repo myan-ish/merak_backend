@@ -14,25 +14,12 @@ class CustomUserAdmin(UserAdmin):
     list_display = ("email", "is_staff", "status")
     list_filter = ("email", "is_staff", "status")
     fieldsets = (
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-        (None, {'fields': ('email', 'password')}),
-        ('Permissions', {'fields': ('is_staff',)}),
-=======
->>>>>>> Stashed changes
         (None, {"fields": ("email", "password")}),
         ("Permissions", {"fields": ("is_staff", "status")}),
         (
             "Personal info",
-<<<<<<< Updated upstream
-            {"fields": ("first_name", "last_name", "phone", "organization")},
-        ),
-=======
             {"fields": ("first_name", "last_name", "phone", "organization", "avatar")},
         ),
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     )
     add_fieldsets = (
         (
