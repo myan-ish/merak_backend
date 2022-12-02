@@ -17,7 +17,7 @@ class ProductOutSerializer(serializers.Serializer):
     updated_at = serializers.DateTimeField(read_only=True)
 
 
-class ProductInSerializer(serializers.Serializer):
+class ProductInSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
