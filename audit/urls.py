@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework import routers
 from audit.apis import Transaction, get_current_balance
 
-from audit.views import AuditView, LedgerViewSet
+from audit.views import AuditView, DashboardViewSet, LedgerViewSet
 
 
 router = routers.DefaultRouter()
@@ -10,6 +10,7 @@ router = routers.DefaultRouter()
 # router.register("expense", ExpenseViewSet)
 # router.register("expense_category", ExpenseCategoryViewSet)
 router.register("ledger", LedgerViewSet)
+router.register("dashboard", DashboardViewSet, basename="dashboard")
 
 
 api_patterns = [
@@ -20,4 +21,4 @@ urlpatterns = [
     path("", include(router.urls)),
     path("audit/", AuditView.as_view(), name="audit"),
     path("transaction/", Transaction.as_view(), name="transaction"),
-]+ api_patterns
+] + api_patterns

@@ -1,7 +1,7 @@
+import datetime
 from decimal import Decimal
 import uuid
 from django.db import models, transaction
-
 from user.models import Customer, Organization
 
 
@@ -28,7 +28,7 @@ class EntryTypeEnum(models.TextChoices):
 
 class Entry(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    date = models.DateField(auto_now=True)
+    date = models.DateField()
     is_credit = models.BooleanField(default=False)
     closing_balance = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     type = models.CharField(max_length=2, choices=EntryTypeEnum.choices)
