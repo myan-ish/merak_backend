@@ -46,4 +46,5 @@ class ProductInSerializer(serializers.ModelSerializer):
             name=validated_data["category"],
             organization=self.context["request"].user.organization,
         )[0]
+        validated_data["organization"] = self.context["request"].user.organization
         return super().create(validated_data)
