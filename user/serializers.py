@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from user.models import Organization
+from user.models import Customer, Organization
 
 from .validators import validate_password
 from .services.auth_handlers import create_verification_link, send_verification_email
@@ -156,3 +156,9 @@ class OrganizationRegistrationSerializer(serializers.ModelSerializer):
             owner=validated_data["owner"],
         )
         return organization
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = "__all__"

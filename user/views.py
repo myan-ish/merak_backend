@@ -5,8 +5,10 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from user.models import Customer
+
 from .filters import UserFilter
-from .serializers import ChangePasswordSerializer, UserSerializer
+from .serializers import ChangePasswordSerializer, CustomerSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
 
 User = get_user_model()
@@ -73,3 +75,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 {"detail": "You do not have permission to perform this action."}
             )
         return super().retrieve(request, *args, **kwargs)
+
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    serializer_class = CustomerSerializer
+    queryset = Customer.objects.all()

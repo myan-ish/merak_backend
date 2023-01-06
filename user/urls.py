@@ -10,6 +10,7 @@ from user import apis
 
 
 router = SimpleRouter()
+router.register("customer", views.CustomerViewSet)
 router.register("", views.UserViewSet)
 
 auth_urlpatterns = [
